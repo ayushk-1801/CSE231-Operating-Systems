@@ -7,7 +7,7 @@ void date(){
     time_t t;
     t = time(NULL);
     ptr = localtime(&t);
-    printf("%s", asctime(ptr));
+    printf("IST %s", asctime(ptr));
 }
 
 void dateUTC(){
@@ -15,7 +15,7 @@ void dateUTC(){
     time_t t;
     t = time(NULL);
     ptr = gmtime(&t);
-    printf("%s", asctime(ptr));
+    printf("UTC %s", asctime(ptr));
 }
 
 void dateRFC(){
