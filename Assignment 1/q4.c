@@ -67,7 +67,6 @@ void scheduling(struct Process process[], int n){
 }
 
 void fifo(struct Process process[], int n) {
-
     printf("First In First Out (FIFO)\n");
     scheduling(process, n);
 }

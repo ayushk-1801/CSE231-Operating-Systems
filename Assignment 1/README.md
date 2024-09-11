@@ -6,11 +6,11 @@ This helper function generates a random number between 1 and n (in this case, be
 int randomNumber(int n) { return (rand() % n) + 1; }
 ```
 
-```c
 Each child process:
 - Seeds the random number generator using `srand(time(0) ^ getpid())` to ensure different seeds across processes.
 - Generates four random numbers and computes their average.
 - Prints the mean and its PID.
+```c
 void childProcess() {
     srand(time(0) ^ getpid());
     double ans = 0;
