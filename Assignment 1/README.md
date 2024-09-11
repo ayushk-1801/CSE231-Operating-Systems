@@ -18,7 +18,7 @@ void childProcess() {
 }
 ```
 Each child process:
-- Seeds the random number generator using srand(time(0) ^ getpid()) to ensure different seeds across processes.
+- Seeds the random number generator using `srand(time(0) ^ getpid())` to ensure different seeds across processes.
 - Generates four random numbers and computes their average.
 - Prints the mean and its PID.
 
@@ -39,8 +39,8 @@ for (int i = 1; i <= 7; i++) {
     printf("Finished child %d (PID: %d)\n", i, wc);
 }
 ```
-- The parent creates seven child processes using fork().
-- After creating each child, the parent waits for the child to complete using wait().
+- The parent creates seven child processes using `fork()`.
+- After creating each child, the parent waits for the child to complete using `wait()`.
 - The PID of the completed child is printed by the parent.
 
 ## Q2
@@ -76,4 +76,4 @@ void binarySearch(int arr[], int low, int high, int target) {
     - If the target is smaller than the middle, search the left half.
     - If the target is larger, search the right half.
 - `fork()` creates a child process, which runs independently from the parent process.
-- In this program, the parent waits (wait()) for the child to finish searching before terminating.
+- In this program, the parent waits (`wait()`) for the child to finish searching before terminating.
