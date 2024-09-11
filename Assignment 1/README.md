@@ -79,3 +79,73 @@ void binarySearch(int arr[], int low, int high, int target) {
 }
 ```
 
+## Q3
+### cal.c
+Determines if a year is a leap year, which affects the number of days in February.
+```c
+int isLeapYear(int year) {
+    return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+```
+Computes the day of the week for the 1st of a given month using Zeller's Congruence formula. The result is adjusted to match the Gregorian calendar's days of the week.
+```c
+int zellerCongruence(int day, int month, int year) {
+    if (month < 3) {
+        month += 12;
+        year--;
+    }
+
+    int k = year % 100;
+    int j = year / 100;
+
+    return ((day + (13 * (month + 1)) / 5 + k + k / 4 + j / 4 - 2 * j) % 7 + 6) % 7;
+}
+```
+- Ensures that exactly two arguments (month and year) are provided and are valid.
+- Uses an array of `Month` structs to store month names and the number of days.
+- Modifies February's days if the year is a leap year.
+- Displays the calendar in a formatted layout.
+```c
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        printf("Usage: %s <month> <year>\n", argv[0]);
+        return 1;
+    }
+
+    int month = atoi(argv[1]);
+    int year = atoi(argv[2]);
+
+    if (month < 1 || month > 12 || year < 1) {
+        printf("Invalid month or year.\n");
+        return 1;
+    }
+
+    struct Month months[] = {{"January", 31}, {"February", 28}, {"March", 31},
+        {"April", 30},   {"May", 31},      {"June", 30},
+        {"July", 31},    {"August", 31},   {"September", 30},
+        {"October", 31}, {"November", 30}, {"December", 31}};
+
+    if (isLeapYear(year) && month == 2) {
+        months[1].days = 29;
+    }
+
+    printf("    %s %d\n", months[month - 1].name, year);
+    printf("Su Mo Tu We Th Fr Sa\n");
+
+    int dayOne = zellerCongruence(1, month, year);
+
+    for (int i = 0; i < dayOne; i++) {
+        printf("   ");
+    }
+
+    for (int i = 1; i <= months[month - 1].days; i++) {
+        printf("%2d ", i);
+        if ((i + dayOne) % 7 == 0) {
+            printf("\n");
+        }
+    }
+    printf("\n");
+
+    return 0;
+}
+```
