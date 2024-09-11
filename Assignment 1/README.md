@@ -181,9 +181,9 @@ int main() {
 ---
 ### main.c
 - Forking and Executing Commands:
-    - First Child: Executes the `date` command.
-    - Second Child: Executes the `cal` command with two arguments passed from the command-line.
-    - Third Child: Executes the `uptime` command.
+    - **First Child:** Executes the `date` command.
+    - **Second Child:** Executes the `cal` command with two arguments passed from the command-line.
+    - **Third Child:** Executes the `uptime` command.
 
 - Parent Process:
     - Waits for all three child processes to complete using `wait`.
@@ -194,10 +194,10 @@ int main() {
 ---
 ### Makefile
 - Targets and Rules:
-    - all: Default target that builds `date`, `cal`, `uptime`, and `main`.
-    - date: Compiles `date.c` into an executable named `date`.
-    - cal: Compiles `cal.c` into an executable named `cal`.
-    - uptime: Compiles `uptime.c` into an executable named `uptime`.
-    - main: Compiles `main.c` into an executable named `main`.
+    - **all:** Default target that builds `date`, `cal`, `uptime`, and `main`.
+    - **date:** Compiles `date.c` into an executable named `date`.
+    - **cal:** Compiles `cal.c` into an executable named `cal`.
+    - **uptime:** Compiles `uptime.c` into an executable named `uptime`.
+    - **main:** Compiles `main.c` into an executable named `main`.
 - Each compilation uses `gcc` with the `-Wall` option to enable all warnings.
 - `clean`: Removes all compiled executables (`date`, `cal`, `uptime`, `main`) to clean up the directory.
