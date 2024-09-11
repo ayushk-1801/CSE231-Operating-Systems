@@ -1,12 +1,12 @@
 # Assignment 1
 
 ## Q1
-```
+```c
 int randomNumber(int n) { return (rand() % n) + 1; }
 ```
 This helper function generates a random number between 1 and n (in this case, between 1 and 100).
 
-```
+```c
 void childProcess() {
     srand(time(0) ^ getpid());
     double ans = 0;
@@ -22,7 +22,7 @@ Each child process:
 - Generates four random numbers and computes their average.
 - Prints the mean and its PID.
 
-```
+```c
 for (int i = 1; i <= 7; i++) {
     int rc = fork();
     if (rc < 0) {
