@@ -43,3 +43,37 @@ for (int i = 1; i <= 7; i++) {
 - After creating each child, the parent waits for the child to complete using wait().
 - The PID of the completed child is printed by the parent.
 
+## Q2
+```c
+void binarySearch(int arr[], int low, int high, int target) {
+    if (low > high) {
+        printf("-1\n");
+        exit(0);
+    }
+    int mid = low + (high - low) / 2;
+    if (arr[mid] == target) {
+        printf("Target value's index: %d", mid);
+        exit(0);
+    }
+    int rc = fork();
+    if (rc < 0) {
+        printf("Fork Failed!\n");
+        exit(1);
+    } else if (rc == 0) {
+        if (arr[mid] > target) {
+            binarySearch(arr, low, mid - 1, target);
+        } else {
+            binarySearch(arr, mid + 1, high, target);
+        }
+    } else {
+        wait(NULL);
+        exit(0);
+    }
+}
+```
+- Binary search is an efficient algorithm for finding an element in a sorted array.
+- The search space is halved with each step by comparing the target with the middle element:
+    - If the target is smaller than the middle, search the left half.
+    - If the target is larger, search the right half.
+- `fork()` creates a child process, which runs independently from the parent process.
+- In this program, the parent waits (wait()) for the child to finish searching before terminating.
