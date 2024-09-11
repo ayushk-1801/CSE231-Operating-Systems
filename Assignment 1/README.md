@@ -149,3 +149,55 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 ```
+---
+### date.c
+
+---
+### uptime.c
+- `struct sysinfo`: A structure used to store various system information.
+- `sysinfo(&temp)`: Populates the temp structure with system data. Returns 0 if successful; returns -1 if there is an error.
+- Uptime Calculation:
+    - The `uptime` field in the `sysinfo` structure represents the number of seconds the system has been running.
+    - The program converts this uptime from seconds into hours, minutes, and seconds.
+```c
+int main() {
+    struct sysinfo temp;
+
+    if (sysinfo(&temp) == 0) {
+        long uptime = temp.uptime;
+
+        long hours = uptime / 3600;
+        long minutes = (uptime % 3600) / 60;
+        long seconds = uptime % 60;
+
+        printf("Uptime: %ld hours, %ld minutes, %ld seconds\n", hours, minutes, seconds);
+    } else {
+        printf("Error!");
+    }
+
+    return 0;
+}
+```
+---
+### main.c
+- Forking and Executing Commands:
+    - First Child: Executes the date command.
+    - Second Child: Executes the cal command with two arguments passed from the command-line.
+    - Third Child: Executes the uptime command.
+
+- Parent Process:
+    - Waits for all three child processes to complete using wait.
+    - Prints the PID of each finished child process and a final message once all children have finished.
+
+- Error Handling:
+    - Checks for errors during fork and execl and exits with an error message if any issues occur.
+---
+### Makefile
+- Targets and Rules:
+    - all: Default target that builds `date`, `cal`, `uptime`, and `main`.
+    - date: Compiles `date.c` into an executable named `date`.
+    - cal: Compiles `cal.c` into an executable named `cal`.
+    - uptime: Compiles `uptime.c` into an executable named `uptime`.
+    - main: Compiles `main.c` into an executable named `main`.
+- Each compilation uses `gcc` with the `-Wall` option to enable all warnings.
+- `clean`: Removes all compiled executables (`date`, `cal`, `uptime`, `main`) to clean up the directory.
