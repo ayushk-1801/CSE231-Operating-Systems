@@ -181,16 +181,16 @@ int main() {
 ---
 ### main.c
 - Forking and Executing Commands:
-    - First Child: Executes the date command.
-    - Second Child: Executes the cal command with two arguments passed from the command-line.
-    - Third Child: Executes the uptime command.
+    - First Child: Executes the `date` command.
+    - Second Child: Executes the `cal` command with two arguments passed from the command-line.
+    - Third Child: Executes the `uptime` command.
 
 - Parent Process:
-    - Waits for all three child processes to complete using wait.
+    - Waits for all three child processes to complete using `wait`.
     - Prints the PID of each finished child process and a final message once all children have finished.
 
 - Error Handling:
-    - Checks for errors during fork and execl and exits with an error message if any issues occur.
+    - Checks for errors during `fork` and `execl` and exits with an error message if any issues occur.
 ---
 ### Makefile
 - Targets and Rules:
