@@ -151,7 +151,10 @@ int main(int argc, char *argv[]) {
 ```
 ---
 ### date.c
-
+- **No arguments:** Displays the local date and time in IST format.
+- `-u`: Displays the UTC date and time.
+- `-r`: Displays the date and time in the RFC 2822 format.
+- **Invalid or extra arguments:** Prints an error message indicating incorrect or invalid flags.
 ---
 ### uptime.c
 - `struct sysinfo`: A structure used to store various system information.
@@ -201,3 +204,6 @@ int main() {
     - **main:** Compiles `main.c` into an executable named `main`.
 - Each compilation uses `gcc` with the `-Wall` option to enable all warnings.
 - `clean`: Removes all compiled executables (`date`, `cal`, `uptime`, `main`) to clean up the directory.
+
+## Q4
+
