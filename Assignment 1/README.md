@@ -15,6 +15,12 @@ Each child process:
 - After creating each child, the parent waits for the child to complete using `wait()`.
 - The PID of the completed child is printed by the parent.
 
+### Execution:
+```bash
+gcc q1.c -o q1
+./q1
+```
+
 ## Q2
 - Binary search is an efficient algorithm for finding an element in a sorted array.
 - The search space is halved with each step by comparing the target with the middle element:
@@ -22,6 +28,11 @@ Each child process:
     - If the target is larger, search the right half.
 - `fork()` creates a child process, which runs independently from the parent process.
 - In this program, the parent waits (`wait()`) for the child to finish searching before terminating.
+### Execution:
+```bash
+gcc q2.c -o q2
+./q2
+```
 
 ## Q3
 ### cal.c
@@ -80,6 +91,16 @@ int zellerCongruence(int day, int month, int year) {
 - Each compilation uses `gcc` with the `-Wall` option to enable all warnings.
 - `clean`: Removes all compiled executables (`date`, `cal`, `uptime`, `main`) to clean up the directory.
 
+### Execution:
+```bash
+make all
+./main <month> <year>
+./cal <month> <year>
+./uptime
+./date
+make clean
+```
+
 ## Q4
 
 - The program uses a `struct Process` to store information about each process
@@ -90,3 +111,9 @@ int zellerCongruence(int day, int month, int year) {
     2. **SJF**: Non-preemptive algorithm where the process with the shortest burst time is executed first.
     3. **SRTF**: Preemptive version of SJF, where the process with the shortest remaining time is executed.
     4. **RR**: Processes are executed in a circular queue for a fixed time quantum.
+
+### Execution:
+```bash
+gcc q4.c -o q4
+./q4
+```

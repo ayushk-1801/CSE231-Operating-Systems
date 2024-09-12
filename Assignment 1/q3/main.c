@@ -10,7 +10,7 @@ int main(int argc, char *argv[]){
         exit(1);
     }
     else if(rc1==0){
-        printf("Running child (PID: %d)\n", getpid());
+        // printf("Running child (PID: %d)\n", getpid());
         execl("./date", "./date", NULL);
         exit(1);
     }
@@ -21,7 +21,7 @@ int main(int argc, char *argv[]){
         exit(1);
     }
     else if(rc2==0){
-        printf("Running child (PID: %d)\n", getpid());
+        // printf("Running child (PID: %d)\n", getpid());
         execl("./cal", "./cal", argv[1], argv[2], NULL);
         exit(1);
     }
@@ -32,16 +32,16 @@ int main(int argc, char *argv[]){
         exit(1);
     }
     else if(rc3==0){
-        printf("Running child (PID: %d)\n", getpid());
+        // printf("Running child (PID: %d)\n", getpid());
         execl("./uptime", "./uptime", NULL);
         exit(1);
     }
 
     for(int i=0; i<3; i++){
-        int wc = wait(NULL);
-        printf("Finished child (PID: %d)\n", wc);
+        wait(NULL);
+        // printf("Finished child (PID: %d)\n", wc);
     }
 
-    printf("All child processes have finished.\n");
+    // printf("All child processes have finished.\n");
     return 0;
 }
