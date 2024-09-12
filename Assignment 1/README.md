@@ -236,3 +236,11 @@ int main() {
 
 ## Q4
 
+- The program uses a `struct Process` to store information about each process
+- Sorting functions are implemented for arrival time and burst time
+- Helper functions calculate average response time and average turnaround time
+- Processes: 
+    1. **FIFO**: Processes are executed in the order they arrive.
+    2. **SJF**: Non-preemptive algorithm where the process with the shortest burst time is executed first.
+    3. **SRTF**: Preemptive version of SJF, where the process with the shortest remaining time is executed.
+    4. **RR**: Processes are executed in a circular queue for a fixed time quantum.
