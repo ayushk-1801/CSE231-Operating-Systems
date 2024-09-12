@@ -97,7 +97,7 @@ make all
 ./main <month> <year>
 ./cal <month> <year>
 ./uptime
-./date
+./date <flag>
 make clean
 ```
 
