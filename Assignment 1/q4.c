@@ -2,6 +2,9 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <signal.h>
 
 struct Process {
     int pid, AT, BT, ResT, TaT, ST, CT, WT, RemT;
@@ -252,25 +255,40 @@ void rr(struct Process process[], int n, int time_quantum) {
 
 int main() {
     int n;
-    printf("Enter the number of process: ");
+    printf("Enter the number of processes: ");
     scanf("%d", &n);
 
     struct Process process[n];
-
     printf("Enter PID, arrival time, and burst time for each process:\n");
     for (int i = 0; i < n; i++) {
-        scanf("%d %d %d", &process[i].pid, &process[i].AT, &process[i].BT);
+        if (scanf("%d %d %d", &process[i].pid, &process[i].AT, &process[i].BT) != 3) {
+            printf("Invalid input for process %d.\n", i + 1);
+            exit(1);
+        }
         process[i].RemT = process[i].BT;
     }
 
     int time_quantum;
     printf("Enter time quantum for round robin: ");
-    scanf("%d", &time_quantum);
+    if (scanf("%d", &time_quantum) != 1 || time_quantum <= 0) {
+        printf("Invalid time quantum.\n");
+        exit(1);
+    }
 
-    fifo(process, n);
-    sjf(process, n);
-    srtf(process, n);
-    rr(process, n, time_quantum);
+    int rc = fork();
+
+    if (rc < 0) {
+        printf("Fork failed.\n");
+        exit(1);
+    } else if (rc == 0) {
+        fifo(process, n);
+        sjf(process, n);
+        srtf(process, n);
+        rr(process, n, time_quantum);
+        exit(0);
+    } else {
+        wait(NULL);
+    }
 
     return 0;
 }
