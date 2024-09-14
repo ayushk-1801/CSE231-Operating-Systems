@@ -6,7 +6,7 @@ struct Month {
     int days;
 };
 
-int isLeapYear(int year) {
+int isLeap(int year) {
     return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
 
@@ -41,22 +41,22 @@ int main(int argc, char *argv[]) {
         {"July", 31},    {"August", 31},   {"September", 30},
         {"October", 31}, {"November", 30}, {"December", 31}};
 
-    if (isLeapYear(year) && month == 2) {
+    if (isLeap(year) && month == 2) {
         months[1].days = 29;
     }
 
     printf("    %s %d\n", months[month - 1].name, year);
     printf("Su Mo Tu We Th Fr Sa\n");
 
-    int dayOne = zellerCongruence(1, month, year);
+    int one = zellerCongruence(1, month, year);
 
-    for (int i = 0; i < dayOne; i++) {
+    for (int i = 0; i < one; i++) {
         printf("   ");
     }
 
     for (int i = 1; i <= months[month - 1].days; i++) {
         printf("%2d ", i);
-        if ((i + dayOne) % 7 == 0) {
+        if ((i + one) % 7 == 0) {
             printf("\n");
         }
     }
