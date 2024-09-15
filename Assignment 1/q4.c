@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#include <signal.h>
 
 struct Process {
     int pid, AT, BT, ResT, TaT, ST, CT, WT, RemT;
