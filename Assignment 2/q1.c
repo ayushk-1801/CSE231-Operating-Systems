@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,24 +6,12 @@
 #include <sys/wait.h>
 #include <time.h>
 
-void merge(int fd[]){
-    int arr[16], start, end;
-    //read
-    if(read(fd[0], &arr, sizeof(int)*16) < 0){
-        return;
-    }
-    if(read(fd[0], &start, sizeof(int)) < 0){
-        return;
-    }
-    if(read(fd[0], &end, sizeof(int)) < 0){
-        return;
-    }
-    close(fd[0]);
-
+void merge(int arr[], int start, int end){
+    
     int mid = (end-start)/2+start;
-
     int mleft = mid - start + 1;
     int mright = end - mid;
+
     int left[mleft], right[mright];
 
     for (int i = 0; i < mleft; i++){
@@ -57,115 +44,56 @@ void merge(int fd[]){
         j++;
         start1++;
     }
-
-    //write
-    if(write(fd[1], &arr, sizeof(int)*16) < 0){
-        return;
-    }
-    if(write(fd[1], &start, sizeof(int)) < 0){
-        return;
-    }
-    if(write(fd[1], &end, sizeof(int)) < 0){
-        return;
-    }
-    close(fd[1]);
 }
 
-void mergesort(int fd[]){
-    int arr[16], start, end;
-    //read
-    if(read(fd[0], &arr, sizeof(int)*16) < 0){
-        printf("huh");
-        return;
-    }
-    if(read(fd[0], &start, sizeof(int)) < 0){
-        return;
-    }
-    if(read(fd[0], &end, sizeof(int)) < 0){
-        return;
-    }
-    close(fd[0]);
-
-    int end1 = end;
-    int start1 = start;
-    int fork1 = fork();
-    if(fork1 == -1){
-        return;
-    }
-    else if(fork1==0){
-        if(start>end){
-            return;
-        }
-        else if(start == end){
-            printf("Sorted array: %d", arr[0]);
-            return;
-        }
+void mergesort(int arr[], int start, int end){    
+    if (start < end) {
         int mid = (end-start)/2+start;
-        if(write(fd[1], &arr, sizeof(int)*16) < 0){
-            return;
-        }
-        start = start1;
-        if(write(fd[1], &start, sizeof(int)) < 0){
-            return;
-        }
-        end = mid;
-        if(write(fd[1], &end, sizeof(int)) < 0){
-            return;
-        }
-        close(fd[1]);
-        printf("\naaaa\n");
-        mergesort(fd);
-        if(read(fd[0], &arr, sizeof(int)*16) < 0){
-            return;
-        }
-        if(read(fd[0], &start, sizeof(int)) < 0){
-            return;
-        }
-        if(read(fd[0], &end, sizeof(int)) < 0){
-            return;
-        }
-        close(fd[0]);
+        int pipe1[2], pipe2[2];
+        pipe(pipe1);
+        pipe(pipe2);
 
-        if(write(fd[1], &arr, sizeof(int)*16) < 0){
-            return;
+        pid_t pid1 = fork();
+        if (pid1 == 0) {
+            close(pipe1[0]);
+            mergesort(arr, start, mid);
+            write(pipe1[1], arr + start, (mid-start+1) * sizeof(int));
+            close(pipe1[1]);
+            exit(0);
         }
-        start = mid+1;
-        if(write(fd[1], &start, sizeof(int)) < 0){
-            return;
-        }
-        end = end1;
-        if(write(fd[1], &end, sizeof(int)) < 0){
-            return;
-        }
-        close(fd[1]);
-        mergesort(fd);
-        if(read(fd[0], &arr, sizeof(int)*16) < 0){
-            return;
-        }
-        if(read(fd[0], &start, sizeof(int)) < 0){
-            return;
-        }
-        if(read(fd[0], &end, sizeof(int)) < 0){
-            return;
-        }
-        close(fd[0]);
 
-        if(write(fd[1], &arr, sizeof(int)*16) < 0){
-            return;
+        pid_t pid2 = fork();
+        if (pid2 == 0) {
+            close(pipe2[0]);
+            mergesort(arr, mid + 1, end);
+            write(pipe2[1], arr + mid + 1, (end-mid) * sizeof(int));
+            close(pipe2[1]);
+            exit(0);
         }
-        start = start1;
-        if(write(fd[1], &start, sizeof(int)) < 0){
-            return;
-        }
-        end = end1;
-        if(write(fd[1], &end, sizeof(int)) < 0){
-            return;
-        }
-        close(fd[1]);
-        merge(fd);
-    }
-    else{
+
+        close(pipe1[1]);
+        close(pipe2[1]);
+
         wait(NULL);
+        wait(NULL);
+
+        int mleft = mid-start+1;
+        int mright = start-mid;
+        int *lefthalf = malloc(mleft * sizeof(int));
+        int *righthalf = malloc(mright * sizeof(int));
+
+        read(pipe1[0], lefthalf, mleft * sizeof(int));
+        read(pipe2[0], righthalf, mright * sizeof(int));
+
+        close(pipe1[0]);
+        close(pipe2[0]);
+
+        for (int i = 0; i < mleft; i++)
+            arr[start+i] = lefthalf[i];
+        for (int j = 0; j < mright; j++)
+            arr[mid + 1 + j] = righthalf[j];
+
+        merge(arr, start, end);
     }
 }
 
@@ -178,36 +106,12 @@ int main(){
     int arr[16] = {16, 15, 14, 13, 12, 11 , 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     int start = 0, end = 15;
     printf("Enter 16 elements of the array: ");
-    // for (int i = 0; i < 16; i++){
-    //     scanf("%d", &arr[i]);
-    // }
+    int a = 0;
+    for (int i = 0; i < 1; i++){
+        scanf("%d", &a);
+    }
 
-    //write
-    if(write(fd[1], &arr, sizeof(int)*15) < 0){
-        return 2;
-    }
-    if(write(fd[1], &start, sizeof(int)) < 0){
-        return 3;
-    }
-    if(write(fd[1], &end, sizeof(int)) < 0){
-        return 4;
-    }
-    close(fd[1]);
-    printf("\nall stored\n");
-
-    mergesort(fd);
-
-    // //read
-    if(read(fd[0], &arr, sizeof(int)*16) < 0){
-        return 5;
-    }
-    if(read(fd[0], &start, sizeof(int)) < 0){
-        return 6;
-    }
-    if(read(fd[0], &end, sizeof(int)) < 0){
-        return 7;
-    }
-    close(fd[0]);
+    mergesort(arr, start, end);
 
     printf("Sorted array: [ ");
     for (int i = 0; i < 15; i++){
