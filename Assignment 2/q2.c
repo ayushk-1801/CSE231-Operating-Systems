@@ -29,7 +29,7 @@ int main() {
     unsigned int Offset = VirtualAddress & OFFSET_MASK;
 
     if (Offset >= Bounds[Segment]) {
-        printf("Segmentation fault: Offset exceeds segment limit.\n");
+        printf("Segmentation fault\n");
         exit(1);
     }
 
