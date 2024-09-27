@@ -2,13 +2,13 @@
 #include <stdlib.h>
 
 #define CODE_BASE 32768
-#define CODE_LIMIT 2048
+#define CODE_BOUND 2048
 
 #define HEAP_BASE 34816
-#define HEAP_LIMIT 3072
+#define HEAP_BOUND 3072
 
 #define STACK_BASE 28672
-#define STACK_LIMIT 2048
+#define STACK_BOUND 2048
 
 #define SEG_MASK 0xC000
 #define SEG_SHIFT 14
@@ -16,7 +16,7 @@
 
 int main() {
     unsigned int Base[] = { CODE_BASE, HEAP_BASE, STACK_BASE };
-    unsigned int Bounds[] = { CODE_LIMIT, HEAP_LIMIT, STACK_LIMIT };
+    unsigned int Bounds[] = { CODE_BOUND, HEAP_BOUND, STACK_BOUND };
 
     char LogicalAddress[5];
 
