@@ -15,26 +15,26 @@
 #define OFFSET_MASK 0x3FFF
 
 int main() {
-    unsigned int Base[] = { CODE_BASE, HEAP_BASE, STACK_BASE };
-    unsigned int Bounds[] = { CODE_BOUND, HEAP_BOUND, STACK_BOUND };
+    unsigned int base[] = { CODE_BASE, HEAP_BASE, STACK_BASE };
+    unsigned int bounds[] = { CODE_BOUND, HEAP_BOUND, STACK_BOUND };
 
-    char LogicalAddress[5];
+    char logicalAddress[5];
 
     printf("Enter the logical address: ");
-    scanf("%s", LogicalAddress);
+    scanf("%s", logicalAddress);
 
-    unsigned int VirtualAddress = (unsigned int)strtol(LogicalAddress, NULL, 16);
+    unsigned int virtualAddress = (unsigned int)strtol(logicalAddress, NULL, 16);
 
-    unsigned int Segment = (VirtualAddress & SEG_MASK) >> SEG_SHIFT;
-    unsigned int Offset = VirtualAddress & OFFSET_MASK;
+    unsigned int segment = (virtualAddress & SEG_MASK) >> SEG_SHIFT;
+    unsigned int offset = virtualAddress & OFFSET_MASK;
 
-    if (Offset >= Bounds[Segment]) {
+    if (offset >= bounds[segment]) {
         printf("Segmentation fault!\n");
         exit(1);
     }
 
-    unsigned int PhysAddr = Base[Segment] + Offset;
-    printf("Physical Address: %04X\n", PhysAddr);
+    unsigned int physAddr = base[segment] + offset;
+    printf("Physical Address: %04X\n", physAddr);
 
     return 0;
 }
