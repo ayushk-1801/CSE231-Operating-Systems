@@ -6,19 +6,19 @@
 #include <sys/wait.h>
 #include <time.h>
 
-void merge(int arr[], int start, int mid, int end){
-    int mleft = mid - start + 1, mright = end - mid;
-    int left[mleft], right[mright];
+void merge(int arr[], int s, int mid, int e){
+    int l = mid - s + 1, r = e - mid;
+    int left[l], right[r];
 
-    for (int i = 0; i < mleft; i++){
-        left[i] = arr[start+i];
+    for (int i = 0; i < l; i++){
+        left[i] = arr[s+i];
     }
-    for (int i = 0; i < mright; i++){
+    for (int i = 0; i < r; i++){
         right[i] = arr[mid+1+i];
     }
 
-    int i = 0, j = 0, start1 = start;
-    while(i < mleft && j < mright){
+    int i = 0, j = 0, start1 = s;
+    while(i < l && j < r){
         if(left[i]<=right[j]){
             arr[start1] = left[i];
             i++;
@@ -29,67 +29,68 @@ void merge(int arr[], int start, int mid, int end){
         }
         start1++;
     }
-    while(i<mleft){
+    while(i<l){
         arr[start1] = left[i];
         i++;
         start1++;
     }
-    while (j<mright){
+    while (j<r){
         arr[start1] = right[j];
         j++;
         start1++;
     }
 }
 
-void mergesort(int arr[], int start, int end){    
-    if (start >= end){
+void mergeSort(int arr[], int s, int e){
+    if (s >= e){
         return;
     }
-    int mid = (end-start)/2+start;
+    int mid = (e-s)/2+s;
     int pipe1[2], pipe2[2];
     pipe(pipe1);
     pipe(pipe2);
     pid_t pid1 = fork();
     if (pid1 == 0) {
         close(pipe1[0]);
-        mergesort(arr, start, mid);
-        write(pipe1[1], arr + start, (mid-start+1) * sizeof(int));
+        mergeSort(arr, s, mid);
+        write(pipe1[1], arr + s, (mid-s+1) * sizeof(int));
         close(pipe1[1]);
         exit(0);
     }
     pid_t pid2 = fork();
     if (pid2 == 0) {
         close(pipe2[0]);
-        mergesort(arr, mid + 1, end);
-        write(pipe2[1], arr + mid + 1, (end-mid) * sizeof(int));
+        mergeSort(arr, mid + 1, e);
+        write(pipe2[1], arr + mid + 1, (e-mid) * sizeof(int));
         close(pipe2[1]);
         exit(0);
     }
-    
+
     close(pipe1[1]);
     close(pipe2[1]);
     wait(NULL);
     wait(NULL);
 
-    int mleft = mid-start+1;
-    int mright = end-mid;
-    int lefthalf[mleft];
-    int righthalf[mright];
-    read(pipe1[0], lefthalf, mleft * sizeof(int));
-    read(pipe2[0], righthalf, mright * sizeof(int));
+    int l = mid-s+1, r = e-mid;
+    int left[l];
+    int right[r];
+    read(pipe1[0], left, l * sizeof(int));
+    read(pipe2[0], right, r * sizeof(int));
     close(pipe1[0]);
     close(pipe2[0]);
-    for (int i = 0; i < mleft; i++)
-        arr[start+i] = lefthalf[i];
-    for (int j = 0; j < mright; j++)
-        arr[mid + 1 + j] = righthalf[j];
-    merge(arr, start, mid, end);
+    for (int i = 0; i < l; i++){
+        arr[s+i] = left[i];
+    }
+    for (int j = 0; j < r; j++){
+        arr[mid + 1 + j] = right[j];
+    }
+    merge(arr, s, mid, e);
 }
 
 int main(){
     int fd[2];
     if (pipe(fd) == -1){
-        printf("huh");
+        printf("Pipe failed\n");
         return 1;
     }
     int arr[16] = {16, 15, 14, 13, 12, 11 , 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
@@ -99,13 +100,13 @@ int main(){
     }
     printf("\n");
 
-    mergesort(arr, 0, 15);
+    mergeSort(arr, 0, 15);
 
     printf("Sorted array: [ ");
     for (int i = 0; i < 15; i++){
         printf("%d ", arr[i]);
     }
     printf("%d ]", arr[15]);
-    
+
     return 0;
 }
