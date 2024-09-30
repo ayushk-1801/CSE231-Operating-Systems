@@ -59,7 +59,13 @@ gcc q4.c -o q4
 ---
 
 ## Q5
-
+- Fixed Number of Frames: The number of available frames is fixed and provided by the user.
+- Fixed Maximum Page Requests: The maximum number of page requests is 1000, and page numbers are 8-bit values (`uint8_t`).
+- Clock Replacement Algorithm: The program uses the Clock Page Replacement Algorithm to handle page faults.
+- All Pages Initially Empty: All frames are initially empty, with page numbers set to `-1`.
+- Reference and Dirty Bits: Each frame has a reference bit (used for the clock algorithm) and a dirty bit, though the dirty bit isn't used in the current logic.
+- No Page Modifications: The program assumes that no pages are modified (dirty bit remains `0`), as there's no logic for handling page writes.
+- Sequential Page Requests: Page requests are processed sequentially with no regard to any other optimization strategies.
 - To run the code, use the following commands:
 ```
 gcc q5.c -o q5
