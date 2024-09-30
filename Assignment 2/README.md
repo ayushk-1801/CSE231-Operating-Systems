@@ -1,4 +1,4 @@
-# Assignment-2222222222222222222222222222222222222222222222
+# Assignment-2
 This README file contains the assumptions, taken for each question, and the steps to run the code.
 
 ## Q2
