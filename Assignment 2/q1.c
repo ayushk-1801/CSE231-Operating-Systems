@@ -49,6 +49,10 @@ void mergeSort(int arr[], int s, int e){
     int pipe1[2], pipe2[2];
     pipe(pipe1);
     pipe(pipe2);
+    if (pipe1 == -1 || pipe2 == -1){
+        printf("Pipe failed\n");
+        return;
+    }
     pid_t pid1 = fork();
     if (pid1 == 0) {
         close(pipe1[0]);
@@ -88,12 +92,8 @@ void mergeSort(int arr[], int s, int e){
 }
 
 int main(){
-    int fd[2];
-    if (pipe(fd) == -1){
-        printf("Pipe failed\n");
-        return 1;
-    }
-    int arr[16] = {16, 15, 14, 13, 12, 11 , 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    int arr[16] = {16, 5, 14, 130, 11, 1000 , 90, 9, 4, 7, 26, 19, 48, 3, 1, 20};
+    
     printf("Unsorted array:\n");
     for (int i = 0; i < 16; i++) {
         printf("%d ", arr[i]);
