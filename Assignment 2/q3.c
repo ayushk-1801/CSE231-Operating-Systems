@@ -76,19 +76,24 @@ int main() {
             if (tlbEntry.protectionBits == 0) {
                 unsigned int physAddr = (tlbEntry.pfn << SHIFT) | offset;
                 printf("TLB Hit: Physical Address = 0x%04X\n", physAddr);
-            } else {
+            }
+            else {
                 printf("Exception: PROTECTION_FAULT\n");
             }
-        } else {
+        }
+        else {
             if (vpn >= TOTAL_PAGES) {
                 printf("Exception: SEGMENTATION_FAULT (VPN out of range)\n");
-            } else {
+            }
+            else {
                 struct PageTableEntry pte = pageTable[vpn];
                 if (!pte.isValid) {
                     printf("Exception: SEGMENTATION_FAULT\n");
-                } else if (pte.protectionBits != 0) {
+                }
+                else if (pte.protectionBits != 0) {
                     printf("Exception: PROTECTION_FAULT\n");
-                } else {
+                }
+                else {
                     static int tlbIdx = 0;
                     tlb[tlbIdx].isValid = true;
                     tlb[tlbIdx].vpn = vpn;
@@ -102,6 +107,5 @@ int main() {
             }
         }
     }
-
     return 0;
 }
