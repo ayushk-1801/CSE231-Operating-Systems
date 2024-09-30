@@ -94,19 +94,19 @@ void mergeSort(int arr[], int s, int e){
 int main(){
     int arr[16] = {16, 5, 14, 130, 11, 1000 , 90, 9, 4, 7, 26, 19, 48, 3, 1, 20};
     
-    printf("Unsorted array:\n");
-    for (int i = 0; i < 16; i++) {
-        printf("%d ", arr[i]);
+    printf("Unsorted array: [ ");
+    for (int i = 0; i < 15; i++) {
+        printf("%d, ", arr[i]);
     }
-    printf("\n");
+    printf("%d]\n", arr[15]);
 
     mergeSort(arr, 0, 15);
 
-    printf("Sorted array: [ ");
+    printf("Sorted array:   [ ");
     for (int i = 0; i < 15; i++){
-        printf("%d ", arr[i]);
+        printf("%d, ", arr[i]);
     }
-    printf("%d ]", arr[15]);
+    printf("%d]", arr[15]);
 
     return 0;
 }
