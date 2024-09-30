@@ -16,7 +16,8 @@ void clockreplacement(struct page *frames, int numFrames, uint8_t pageNumber, in
             frames[*clockPointer].dirtyBit = 0;
             *clockPointer = (*clockPointer + 1) % numFrames;
             return;
-        } else {
+        }
+        else{
             frames[*clockPointer].referenceBit = 0;
             *clockPointer = (*clockPointer + 1) % numFrames;
         }
