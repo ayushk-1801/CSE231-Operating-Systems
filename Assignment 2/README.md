@@ -43,14 +43,12 @@ gcc q3.c -o q3
 ---
 
 ## Q4
-- Fixed Page Size: Each page is 4 KB (`PAGESIZE` = 4096 bytes).
-- Two-Level Paging: The program uses a 2-level page table with 1024 Page Directory Entries (`PDENTRY`) and 1024 Page Table Entries (`PTENTRY`).
-- Physical Memory Size: Physical memory is simulated as 4 MB (`physicalmemory[]`), with each entry representing a byte.
-- No Memory Eviction: Once a page is loaded into memory, it remains valid, assuming there is no page replacement strategy (like LRU or FIFO).
-- Simple Page Fault Handling: On a page fault, a new page is loaded, and the corresponding page table and directory entries are marked as valid.
-- Page Hit/Miss Tracking: The program tracks and displays page hits and misses but assumes no cache or TLB.
-- No Protection or Permissions: The program assumes all memory accesses are valid without handling access permissions (e.g., read/write/execute).
-- To run the code, use the following commands:
+- 32-bit virtual addressing: Virtual addresses are split into PDindex, PTindex, and offset.
+- Page Directory and Page Table: 1024 entries each; dynamically allocated on demand.
+- Physical memory: Simulated as a 16 MB array.
+- Page Hits and Misses: Hits when valid; misses trigger allocation.
+- Simple value storage: Stores and retrieves single-byte values (0-255).
+- No complex memory management: No page replacement or protection flags.
 ```
 gcc q4.c -o q4
 ./q4
