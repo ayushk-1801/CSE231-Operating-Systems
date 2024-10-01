@@ -49,7 +49,7 @@ void mergeSort(int arr[], int s, int e){
     int pipe1[2], pipe2[2];
     pipe(pipe1);
     pipe(pipe2);
-    if (pipe1 == -1 || pipe2 == -1){
+    if (*pipe1 == -1 || *pipe2 == -1){
         printf("Pipe failed\n");
         return;
     }
