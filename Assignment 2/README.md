@@ -43,12 +43,12 @@ gcc q3.c -o q3
 ---
 
 ## Q4
-- 32-bit virtual addressing: Virtual addresses are split into PDindex, PTindex, and offset.
-- Page Directory and Page Table: 1024 entries each; dynamically allocated on demand.
-- Physical memory: Simulated as a 16 MB array.
-- Page Hits and Misses: Hits when valid; misses trigger allocation.
-- Simple value storage: Stores and retrieves single-byte values (0-255).
-- No complex memory management: No page replacement or protection flags.
+- Virtual Memory System: Uses a two-level page table (Page Directory and Page Table) with 4 KB pages.
+- Fixed Physical Memory: 16 MB of physical memory is allocated.
+- Dynamic Page Allocation: Page faults trigger dynamic allocation of page tables and frames.
+- Physical Frames: Frames are allocated sequentially in a circular manner.
+- Page Table Entries: Each entry stores a frame number and a validity flag.
+- Page Hit/Miss: Tracks page hits and misses during load and store operations.
 ```
 gcc q4.c -o q4
 ./q4
