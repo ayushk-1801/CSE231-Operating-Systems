@@ -10,7 +10,6 @@
 
 struct PTE {
     uint32_t PFN;
-    uint32_t *values;
     int isvalid;
 };
 struct PDE {
@@ -18,67 +17,63 @@ struct PDE {
     int isvalid;
 };
 struct PDE *Pdirectories;
-
 uint8_t *physical_memory;
 size_t physical_memory_size = 16 * 1024 * 1024;
 int Hits = 0;
 int Misses = 0;
 
+uint32_t physicalframe(){
+    static uint32_t nextFrame = 0;
+    uint32_t frame = nextFrame*PAGESIZE;
+    nextFrame = (nextFrame+1) % (physical_memory_size/PAGESIZE);
+    return frame;
+}
+
 unsigned int load(uint32_t va) {
-    uint32_t PDindex = (va & 0xFFC00000) >> 22;
-    uint32_t PTindex = (va & 0x003FF000) >> 12;
+    uint32_t PDindex = (va >> 22) & 0x3FF;
+    uint32_t PTindex = (va >> 12) & 0x3FF;
     uint32_t offset = va & 0xFFF;
 
-    if (Pdirectories->values[PDindex] == NULL) {
+    if (Pdirectories[PDindex].values[PTindex] == NULL) {
         Misses++;
         printf(" -> Page Fault at PD index: %u\n", PDindex);
-
-        Pdirectories->values[PDindex] = (struct PTE *)calloc(1, sizeof(struct PTE));
-        Pdirectories->values[PDindex]->values =
-            (uint32_t *)calloc(PTENTRY, sizeof(uint32_t));
-        Pdirectories->values[PDindex]->isvalid = 1;
+        return 0;
     }
-    struct PTE *pt = Pdirectories->values[PDindex];
-    if (pt->values[PTindex] == 0) {
+    struct PTE *pt = Pdirectories[PDindex].values[PTindex];
+    if (pt->isvalid == 0){
         Misses++;
         printf(" -> Page Fault at PT index: %u\n", PTindex);
         return 0;
-    } else {
-        Hits++;
-        printf(" -- Page Hit at PD index: %u, PT index: %u\n", PDindex, PTindex);
     }
+    Hits++;
+    printf(" -- Page Hit at PD index: %u, PT index: %u\n", PDindex, PTindex);
 
-    uint32_t frame = pt->values[PTindex] & ~0xFFF;
-    uint32_t index = frame;
-    return physical_memory[index];
+    uint32_t physicaladdress = pt->PFN+offset;
+    return physical_memory[physicaladdress];
 }
 
 void store(uint32_t va, unsigned int value) {
-    uint32_t PDindex = (va & 0xFFC00000) >> 22;
-    uint32_t PTindex = (va & 0x003FF000) >> 12;
+    uint32_t PDindex = (va >> 22) & 0x3FF;
+    uint32_t PTindex = (va >> 12) & 0x3FF;
     uint32_t offset = va & 0xFFF;
 
-    if (Pdirectories->values[PDindex] == NULL) {
+    if (Pdirectories[PDindex].values[PTindex] == NULL) {
         Misses++;
         printf(" -> Page Miss at PD index: %u\n", PDindex);
-
-        Pdirectories->values[PDindex] = (struct PTE *)calloc(1, sizeof(struct PTE));
-        Pdirectories->values[PDindex]->values =
-            (uint32_t *)calloc(PTENTRY, sizeof(uint32_t));
-        Pdirectories->values[PDindex]->isvalid = 1;
+        Pdirectories[PDindex].values[PTindex] = malloc(sizeof(struct PTE));
+        if (!Pdirectories[PDindex].values[PTindex]) {
+            printf(" -- Failed to allocate PTE\n");
+            exit(1);
+        }
+        Pdirectories[PDindex].values[PTindex]->PFN = physicalframe();
+        Pdirectories[PDindex].values[PTindex]->isvalid = 1;
     }
-    struct PTE *pt = Pdirectories->values[PDindex];
-    if (pt->values[PTindex] == 0) {
-        Misses++;
-        printf(" -> Page Miss at PT index: %u\n", PTindex);
-        pt->values[PTindex] = 1;
-    } else {
+    else{
         Hits++;
         printf(" -- Page Hit at PD index: %u, PT index: %u\n", PDindex, PTindex);
     }
-    uint32_t frame = pt->values[PTindex] & ~0xFFF;
-    uint8_t ind = frame;
-    physical_memory[ind] = value;
+    uint32_t physicaladdress = Pdirectories[PDindex].values[PTindex]->PFN + offset;
+    physical_memory[physicaladdress] = value;
 }
 
 void hitsandmiss() {
@@ -94,10 +89,19 @@ void hitmissratio() {
     printf("- Page Table Size: %lu bytes\n", sizeof(struct PTE));
 }
 
-void starting() {
+void clean() {
+    for (int i = 0; i < PDENTRY; i++) {
+        for (int j = 0; j < PTENTRY; j++) {
+            free(Pdirectories[i].values[j]);
+        }
+    }
+    free(Pdirectories);
+    free(physical_memory);
+}
+
+void starting(){
     int okk;
     uint32_t address;
-    uint8_t value;
 
     printf("\n    1 --> Store value\n");
     printf("    2 --> Load value\n");
@@ -119,8 +123,8 @@ void starting() {
         case 2:
             printf("Enter virtual address(e.g. CCC0FFEE): 0x");
             scanf("%x", &address);
-            value = load(address);
-            printf(" -- Value at address 0x%08X: %u\n", address, value);
+            uint8_t value2 = load(address);
+            printf(" -- Value at address 0x%08X: %u\n", address, value2);
             hitsandmiss();
             starting();
             break;
@@ -134,11 +138,17 @@ void starting() {
 }
 
 int main() {
-    Pdirectories = (struct PDE *)calloc(1, sizeof(struct PDE));
-    physical_memory = (uint8_t *)calloc(physical_memory_size, sizeof(uint8_t));
+    Pdirectories = calloc(PDENTRY, sizeof(struct PDE));
+    physical_memory = calloc(physical_memory_size, sizeof(uint8_t));
+
+    if (!Pdirectories || !physical_memory) {
+        fprintf(stderr, "Failed to allocate memory\n");
+        return 1;
+    }
 
     starting();
     hitmissratio();
+    clean();
 
     return 0;
 }
