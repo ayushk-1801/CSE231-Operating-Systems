@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[]) {
     if (argc < 3) {
-        fprintf(stderr, "Usage: %s <source_file> <dest_dir>\n", argv[0]);
+        printf("Invalid input!");
         return 1;
     }
 
