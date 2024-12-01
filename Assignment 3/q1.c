@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-const int total_threads = 3;
-
 pthread_mutex_t lock_A = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t lock_B = PTHREAD_MUTEX_INITIALIZER;
 
@@ -41,15 +39,15 @@ void *f(void *arg) {
 }
 
 int main() {
-  int ids[total_threads];
-  pthread_t threads[total_threads];
+  int ids[3];
+  pthread_t threads[3];
 
-  for (int i = 0; i < total_threads; i++) {
+  for (int i = 0; i < 3; i++) {
     ids[i] = i + 1;
     pthread_create(&threads[i], NULL, f, &ids[i]);
   }
 
-  for (int i = 0; i < total_threads; i++) {
+  for (int i = 0; i < 3; i++) {
     pthread_join(threads[i], NULL);
   }
 

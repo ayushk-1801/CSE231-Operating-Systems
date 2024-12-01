@@ -1,92 +1,59 @@
 #include <pthread.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <unistd.h>
-
-const int NUM_THREADS = 4;
 
 typedef struct {
-  int row;
-  int col;
-  int m, n, p;
-  int **matA;
-  int **matB;
-  int **result;
+  int row, col;
+  int n;
+  int **A;
+  int **B;
+  int **C;
 } Task;
 
 typedef struct {
   Task **tasks;
-  int taskCount;
-  int currentTask;
-  pthread_mutex_t mutex;
-  pthread_cond_t condition;
+  int cnt;
+  int currTask;
   int threadsWorking;
-  int isShutdown;
+  pthread_mutex_t mutex;
+  pthread_cond_t cond;
+  bool flag;
 } ThreadPool;
-
-ThreadPool *initThreadPool() {
-  ThreadPool *pool = (ThreadPool *)malloc(sizeof(ThreadPool));
-  pool->tasks = (Task **)malloc(sizeof(Task *) * 1000);
-  pool->taskCount = 0;
-  pool->currentTask = 0;
-  pool->threadsWorking = 0;
-  pool->isShutdown = 0;
-  pthread_mutex_init(&pool->mutex, NULL);
-  pthread_cond_init(&pool->condition, NULL);
-  return pool;
-}
-
-void submitTask(ThreadPool *pool, Task *task) {
-  pthread_mutex_lock(&pool->mutex);
-  pool->tasks[pool->taskCount++] = task;
-  pthread_cond_signal(&pool->condition);
-  pthread_mutex_unlock(&pool->mutex);
-}
 
 void *workerThread(void *arg) {
   ThreadPool *pool = (ThreadPool *)arg;
   while (1) {
     pthread_mutex_lock(&pool->mutex);
 
-    while (pool->currentTask >= pool->taskCount && !pool->isShutdown) {
-      pthread_cond_wait(&pool->condition, &pool->mutex);
+    while (pool->currTask >= pool->cnt && !pool->flag) {
+      pthread_cond_wait(&pool->cond, &pool->mutex);
     }
 
-    if (pool->isShutdown && pool->currentTask >= pool->taskCount) {
+    if (pool->flag && pool->currTask >= pool->cnt) {
       pthread_mutex_unlock(&pool->mutex);
       break;
     }
 
-    Task *task = pool->tasks[pool->currentTask++];
+    Task *task = pool->tasks[pool->currTask++];
     pool->threadsWorking++;
     pthread_mutex_unlock(&pool->mutex);
 
     int sum = 0;
     for (int k = 0; k < task->n; k++) {
-      sum += task->matA[task->row][k] * task->matB[k][task->col];
+      sum += task->A[task->row][k] * task->B[k][task->col];
     }
-    task->result[task->row][task->col] = sum;
-    free(task);
+    task->C[task->row][task->col] = sum;
 
     pthread_mutex_lock(&pool->mutex);
     pool->threadsWorking--;
-    pthread_cond_signal(&pool->condition);
+    pthread_cond_signal(&pool->cond);
     pthread_mutex_unlock(&pool->mutex);
+
+    free(task);
   }
   return NULL;
-}
-
-void destroyThreadPool(ThreadPool *pool) {
-  pthread_mutex_lock(&pool->mutex);
-  pool->isShutdown = 1;
-  pthread_cond_broadcast(&pool->condition);
-  pthread_mutex_unlock(&pool->mutex);
-
-  pthread_mutex_destroy(&pool->mutex);
-  pthread_cond_destroy(&pool->condition);
-  free(pool->tasks);
-  free(pool);
 }
 
 int main() {
@@ -94,88 +61,87 @@ int main() {
   printf("Enter dimensions (m n p): ");
   scanf("%d %d %d", &m, &n, &p);
 
-  int **matA = (int **)malloc(m * sizeof(int *));
-  int **matB = (int **)malloc(n * sizeof(int *));
-  int **seqResult = (int **)malloc(m * sizeof(int *));
-  int **parallelResult = (int **)malloc(m * sizeof(int *));
-
+  int **A = malloc(m * sizeof(int *));
+  int **B = malloc(n * sizeof(int *));
+  int **C1 = malloc(m * sizeof(int *));
+  int **C2 = malloc(m * sizeof(int *));
   for (int i = 0; i < m; i++) {
-    matA[i] = (int *)malloc(n * sizeof(int));
-    seqResult[i] = (int *)malloc(p * sizeof(int));
-    parallelResult[i] = (int *)malloc(p * sizeof(int));
+    A[i] = malloc(n * sizeof(int));
+    C1[i] = malloc(p * sizeof(int));
+    C2[i] = malloc(p * sizeof(int));
   }
   for (int i = 0; i < n; i++) {
-    matB[i] = (int *)malloc(p * sizeof(int));
+    B[i] = malloc(p * sizeof(int));
   }
 
   printf("Enter matrix A (%dx%d):\n", m, n);
   for (int i = 0; i < m; i++)
     for (int j = 0; j < n; j++)
-      scanf("%d", &matA[i][j]);
+      scanf("%d", &A[i][j]);
 
   printf("Enter matrix B (%dx%d):\n", n, p);
   for (int i = 0; i < n; i++)
     for (int j = 0; j < p; j++)
-      scanf("%d", &matB[i][j]);
+      scanf("%d", &B[i][j]);
 
-  struct timespec start, end;
-
-  clock_gettime(CLOCK_MONOTONIC, &start);
+  clock_t start = clock();
   for (int i = 0; i < m; i++) {
     for (int j = 0; j < p; j++) {
-      seqResult[i][j] = 0;
+      C1[i][j] = 0;
       for (int k = 0; k < n; k++) {
-        seqResult[i][j] += matA[i][k] * matB[k][j];
+        C1[i][j] += A[i][k] * B[k][j];
       }
     }
   }
-  clock_gettime(CLOCK_MONOTONIC, &end);
-  double seqTime =
-      (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
+  clock_t end = clock();
+  double time1 = (double)(end - start) / CLOCKS_PER_SEC;
 
-  ThreadPool *pool = initThreadPool();
-  pthread_t threads[NUM_THREADS];
-
-  for (int i = 0; i < NUM_THREADS; i++) {
-    pthread_create(&threads[i], NULL, workerThread, pool);
+  ThreadPool pool = {
+      malloc(1000 * sizeof(Task *)), 0,    0, 0, PTHREAD_MUTEX_INITIALIZER,
+      PTHREAD_COND_INITIALIZER,      false};
+  pthread_t threads[4];
+  for (int i = 0; i < 4; i++) {
+    pthread_create(&threads[i], NULL, workerThread, &pool);
   }
 
-  clock_gettime(CLOCK_MONOTONIC, &start);
+  start = clock();
   for (int i = 0; i < m; i++) {
     for (int j = 0; j < p; j++) {
-      Task *task = (Task *)malloc(sizeof(Task));
+      Task *task = malloc(sizeof(Task));
       task->row = i;
       task->col = j;
-      task->m = m;
       task->n = n;
-      task->p = p;
-      task->matA = matA;
-      task->matB = matB;
-      task->result = parallelResult;
-      submitTask(pool, task);
+      task->A = A;
+      task->B = B;
+      task->C = C2;
+
+      pthread_mutex_lock(&pool.mutex);
+      pool.tasks[pool.cnt++] = task;
+      pthread_cond_signal(&pool.cond);
+      pthread_mutex_unlock(&pool.mutex);
     }
   }
 
-  pthread_mutex_lock(&pool->mutex);
-  while (pool->currentTask < pool->taskCount || pool->threadsWorking > 0) {
-    pthread_cond_wait(&pool->condition, &pool->mutex);
+  pthread_mutex_lock(&pool.mutex);
+  while (pool.currTask < pool.cnt || pool.threadsWorking > 0) {
+    pthread_cond_wait(&pool.cond, &pool.mutex);
   }
-  pthread_mutex_unlock(&pool->mutex);
+  pthread_mutex_unlock(&pool.mutex);
 
-  destroyThreadPool(pool);
+  pool.flag = true;
+  pthread_cond_broadcast(&pool.cond);
 
-  for (int i = 0; i < NUM_THREADS; i++) {
+  for (int i = 0; i < 4; i++) {
     pthread_join(threads[i], NULL);
   }
 
-  clock_gettime(CLOCK_MONOTONIC, &end);
-  double parallelTime =
-      (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
+  end = clock();
+  double time2 = (double)(end - start) / CLOCKS_PER_SEC;
 
   printf("\nSequential Result:\n");
   for (int i = 0; i < m; i++) {
     for (int j = 0; j < p; j++) {
-      printf("%d ", seqResult[i][j]);
+      printf("%d ", C1[i][j]);
     }
     printf("\n");
   }
@@ -183,27 +149,28 @@ int main() {
   printf("\nParallel Result (Thread Pool):\n");
   for (int i = 0; i < m; i++) {
     for (int j = 0; j < p; j++) {
-      printf("%d ", parallelResult[i][j]);
+      printf("%d ", C2[i][j]);
     }
     printf("\n");
   }
 
-  printf("\nSequential Time: %f seconds\n", seqTime);
-  printf("Parallel Time (Thread Pool): %f seconds\n", parallelTime);
-  printf("Speedup: %f\n", seqTime / parallelTime);
+  printf("\nSequential Time = %f secs\n", time1);
+  printf("Parallel Time (Thread Pool) = %f secs\n", time2);
+  printf("Speedup = %f\n", time1 / time2);
 
   for (int i = 0; i < m; i++) {
-    free(matA[i]);
-    free(seqResult[i]);
-    free(parallelResult[i]);
+    free(A[i]);
+    free(C1[i]);
+    free(C2[i]);
   }
   for (int i = 0; i < n; i++) {
-    free(matB[i]);
+    free(B[i]);
   }
-  free(matA);
-  free(matB);
-  free(seqResult);
-  free(parallelResult);
+  free(A);
+  free(B);
+  free(C1);
+  free(C2);
+  free(pool.tasks);
 
   return 0;
 }

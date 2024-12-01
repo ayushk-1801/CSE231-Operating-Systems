@@ -1,14 +1,13 @@
 #include <pthread.h>
 #include <semaphore.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
 
-static const int BUFFER_SIZE = 20;
-
 typedef struct {
-  int items[20];
+  int items[69];
   int in, out, count;
   pthread_mutex_t mutex;
   sem_t empty, filled;
@@ -17,7 +16,7 @@ typedef struct {
 CircularBuffer warehouse = {
     .in = 0, .out = 0, .count = 0, .mutex = PTHREAD_MUTEX_INITIALIZER};
 
-int flag = 1;
+bool flag = 1;
 
 void *manager(void *arg) {
   int manager_id = *(int *)arg;
@@ -26,7 +25,7 @@ void *manager(void *arg) {
     pthread_mutex_lock(&warehouse.mutex);
 
     int products = warehouse.items[warehouse.out];
-    warehouse.out = (warehouse.out + 1) % BUFFER_SIZE;
+    warehouse.out = (warehouse.out + 1) % 69;
     warehouse.count -= products;
 
     printf("Manager %d stored %d products [Inventory: %d]\n", manager_id,
@@ -50,7 +49,7 @@ void *truck(void *arg) {
     pthread_mutex_lock(&warehouse.mutex);
 
     warehouse.items[warehouse.in] = products;
-    warehouse.in = (warehouse.in + 1) % BUFFER_SIZE;
+    warehouse.in = (warehouse.in + 1) % 69;
     warehouse.count += products;
 
     printf("Truck %d delivered %d products [Inventory: %d]\n", truck_id,
@@ -74,7 +73,7 @@ int main(int argc, char *argv[]) {
   int num_trucks = atoi(argv[1]);
   int num_managers = atoi(argv[2]);
 
-  sem_init(&warehouse.empty, 0, BUFFER_SIZE);
+  sem_init(&warehouse.empty, 0, 69);
   sem_init(&warehouse.filled, 0, 0);
 
   srand(time(NULL));
@@ -103,12 +102,6 @@ int main(int argc, char *argv[]) {
   for (int i = 0; i < num_managers; i++) {
     pthread_join(manager_threads[i], NULL);
   }
-
-  pthread_mutex_destroy(&warehouse.mutex);
-  sem_destroy(&warehouse.empty);
-  sem_destroy(&warehouse.filled);
-  free(truck_threads);
-  free(manager_threads);
 
   printf("\nFinal warehouse inventory size: %d products\n", warehouse.count);
   return 0;
