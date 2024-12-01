@@ -1,16 +1,16 @@
 CC = gcc
 CFLAGS = -Wall -g
 
-all: setup Q3
+all: setup q3
 
 setup: setup.c
 	$(CC) $(CFLAGS) setup.c -o setup
 
-Q3: Q3.c
-	$(CC) $(CFLAGS) Q3.c -o Q3
+q3: q3.c
+	$(CC) $(CFLAGS) q3.c -o q3
 
 run:
 	./setup
 
 clean:
-	rm -f setup Q3 students.rec
+	rm -f setup q3 students.rec

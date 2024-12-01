@@ -1,7 +1,7 @@
-all: Q1
+all: q1
 
-Q1: Q1.c
-	gcc -o Q1 Q1.c -lm
+q1: q1.c
+	gcc -o q1 q1.c -lm
 
 clean:
-	rm -f Q1
+	rm -f q1

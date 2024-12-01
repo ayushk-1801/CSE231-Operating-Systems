@@ -9,7 +9,7 @@ struct Student {
 int main() {
     struct Student students[5] = {
         {1, "Arhan Jain"},
-        {2, "Arnesh Batra"},
+        {2, "Bhavesh Ladha"},
         {3, "Anushk Kumar"},
         {4, "Anant Gyan Singhal"},
         {5, "Ayush Kitnawat"}

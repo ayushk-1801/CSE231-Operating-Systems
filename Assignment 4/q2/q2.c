@@ -17,7 +17,7 @@ int closestrequest(int curr, int requests[], int visited[], int size) {
 }
 
 void SSTF(int requests[], int visited[], int size){
-    int currentsector = 100, currenttrack = 1, totalseektime = 0, nextsector, nexttrack;
+    // int currentsector = 100, currenttrack = 1, totalseektime = 0, nextsector, nexttrack;           change in this sector start with 0 or sometign like that
     double totalrotationallatency = 0.0;
 
     for (int i = 0; i < size; i++){
