@@ -9,10 +9,9 @@
 #include <unistd.h>
 
 #define TOTAL_STATN 100000
-#define TOTAL_STATN_NAMES 1000
 
 typedef struct {
-    char name[TOTAL_STATN_NAMES];
+    char name[1000];
     int cnt;
     double min, max, total;
 } Station;

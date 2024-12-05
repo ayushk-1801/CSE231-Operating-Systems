@@ -42,7 +42,9 @@ void part2(const char *input, const char *command){
         exit(0);
     }
     else{
-        wait(NULL);
+        if (wait(NULL) < 0) {
+            perror("Error in wait");
+        }
     }
     close(file2);
 }

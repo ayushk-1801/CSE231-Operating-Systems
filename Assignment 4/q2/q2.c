@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-int closestrequest(int curr, int requests[], int visited[], int size) {
+int closestrequest(int requests[], int visited[], int size) {
     int minindex = -1, mindistance = 100000;
     for(int i = 0; i<size; i++){
         if(!visited[i]){
@@ -17,11 +17,11 @@ int closestrequest(int curr, int requests[], int visited[], int size) {
 }
 
 void SSTF(int requests[], int visited[], int size){
-    // int currentsector = 100, currenttrack = 1, totalseektime = 0, nextsector, nexttrack;           change in this sector start with 0 or sometign like that
+    int currentsector = 0, currenttrack = 1, totalseektime = 0, nextsector, nexttrack;
     double totalrotationallatency = 0.0;
 
     for (int i = 0; i < size; i++){
-        int next_request = closestrequest(currentsector, requests, visited, size);
+        int next_request = closestrequest(requests, visited, size);
         visited[next_request] = 1;
         nextsector = requests[next_request];
         nexttrack = nextsector/100;
